@@ -4,84 +4,99 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
 	"gopkg.in/mgo.v2/bson"
-
 	"github.com/gorilla/mux"
-	. "github.com/mlabouardy/movies-restapi/config"
-	. "github.com/mlabouardy/movies-restapi/dao"
-	. "github.com/mlabouardy/movies-restapi/models"
+	. "livingcost-api/config"
+	. "livingcost-api/dao"
+	. "livingcost-api/models"
 )
 
 var config = Config{}
-var dao = MoviesDAO{}
+var dao = LivingcostsDAO{}
 
-// GET list of movies
-func AllMoviesEndPoint(w http.ResponseWriter, r *http.Request) {
-	movies, err := dao.FindAll()
+// GET list of livingcosts
+func AllLivingcostsEndPoint(w http.ResponseWriter, r *http.Request) {
+	livingcosts, err := dao.FindAll()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusOK, movies)
+	respondWithJson(w, http.StatusOK, livingcosts)
 }
 
-// GET a movie by its ID
-func FindMovieEndpoint(w http.ResponseWriter, r *http.Request) {
+// GET a livingcost by its ID
+func FindLivingcostEndpoint(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	movie, err := dao.FindById(params["id"])
+	livingcost, err := dao.FindById(params["id"])
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid Movie ID")
+		respondWithError(w, http.StatusBadRequest, "Invalid Livingcost ID")
 		return
 	}
-	respondWithJson(w, http.StatusOK, movie)
+	respondWithJson(w, http.StatusOK, livingcost)
 }
 
-// POST a new movie
-func CreateMovieEndPoint(w http.ResponseWriter, r *http.Request) {
+// POST a new livingcost
+func CreateLivingcostEndPoint(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	var movie Movie
-	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
+	var livingcost Livingcost
+	if err := json.NewDecoder(r.Body).Decode(&livingcost); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
-	movie.ID = bson.NewObjectId()
-	if err := dao.Insert(movie); err != nil {
+	livingcost.ID = bson.NewObjectId()
+	if err := dao.Insert(livingcost); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusCreated, movie)
+	respondWithJson(w, http.StatusCreated, livingcost)
 }
 
-// PUT update an existing movie
-func UpdateMovieEndPoint(w http.ResponseWriter, r *http.Request) {
+// PUT update an existing livingcost
+func UpdateLivingcostEndPoint(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	_, err := dao.FindById(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Livingcost ID")
+		return	}
+
+	// barrio := params["barrio"]
+	// localidad := params["localidad"]
+	// sectorCatastral := params["sectorCatastral"]
+	// valorm2 := params["valorm2"]
 	defer r.Body.Close()
-	var movie Movie
-	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
+	var livingcost2 Livingcost
+	livingcost2.ID = bson.ObjectIdHex(params["id"])
+
+
+	if err := json.NewDecoder(r.Body).Decode(&livingcost2); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
-	if err := dao.Update(movie); err != nil {
+	if err := dao.Update(livingcost2); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	respondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
-// DELETE an existing movie
-func DeleteMovieEndPoint(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	var movie Movie
-	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+// DELETE an existing livingcost
+func DeleteLivingcostEndPoint(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	livingcost, err := dao.FindById(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Livingcost ID")
 		return
 	}
-	if err := dao.Delete(movie); err != nil {
+
+	if err := dao.Delete(livingcost); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
+	respondWithJson(w, http.StatusOK,  map[string]string{"result": "success"} )
 }
+
+
+
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
 	respondWithJson(w, code, map[string]string{"error": msg})
@@ -106,11 +121,11 @@ func init() {
 // Define HTTP request routes
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/movies", AllMoviesEndPoint).Methods("GET")
-	r.HandleFunc("/movies", CreateMovieEndPoint).Methods("POST")
-	r.HandleFunc("/movies", UpdateMovieEndPoint).Methods("PUT")
-	r.HandleFunc("/movies", DeleteMovieEndPoint).Methods("DELETE")
-	r.HandleFunc("/movies/{id}", FindMovieEndpoint).Methods("GET")
+	r.HandleFunc("/livingcosts", AllLivingcostsEndPoint).Methods("GET")
+	r.HandleFunc("/livingcosts", CreateLivingcostEndPoint).Methods("POST")
+	r.HandleFunc("/livingcost/{id}", UpdateLivingcostEndPoint).Methods("PUT")
+	r.HandleFunc("/livingcost/{id}", DeleteLivingcostEndPoint).Methods("DELETE")
+	r.HandleFunc("/livingcosts/{id}", FindLivingcostEndpoint).Methods("GET")
 	if err := http.ListenAndServe(":3000", r); err != nil {
 		log.Fatal(err)
 	}
