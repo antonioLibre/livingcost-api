@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  livingcost-ms:
+    container_name: 'livingcost-ms'
+    build: .
+    ports:
+      - '3000:3000'
+
+    depends_on:
+      - 'livingcost-db'
+
+  livingcost-db:
+    image: 'mongo:latest'
+    container_name: 'livingcost-db'
+    ports:
+      - '27100:27017'

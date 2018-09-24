@@ -1,0 +1,19 @@
+hash: bef2e76f8066155c959fc6be10192af2d173185e0b127d491c23e7d6868d7289
+updated: 2018-09-24T05:14:26.068458218Z
+imports:
+- name: github.com/antonioLibre/livingcost-api
+  version: c37815fc3be2ac51c5a3362576348589bfca100c
+  subpackages:
+  - dao
+- name: github.com/BurntSushi/toml
+  version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
+- name: github.com/gorilla/mux
+  version: 9e1f5955c0d22b55d9e20d6faa28589f83b2faca
+- name: gopkg.in/mgo.v2
+  version: 9856a29383ce1c59f308dd1cf0363a79b5bef6b5
+  subpackages:
+  - bson
+  - internal/json
+  - internal/sasl
+  - internal/scram
+testImports: []
