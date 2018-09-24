@@ -1,13 +1,21 @@
+# golang image where workspace (GOPATH) configured at /go.
 FROM golang:1.8
 
-RUN adduser --disabled-password --gecos '' api
-USER api
+# Install dependencies
+RUN go get gopkg.in/mgo.v2
+RUN go get github.com/gorilla/mux
 
-WORKDIR /go/src/app
-COPY . .
+# copy the local package files to the container workspace
+ADD . /go/src/github.com/mmorejon/cinema/movies
 
-RUN go get github.com/pilu/fresh
-RUN go-wrapper download
-RUN go-wrapper install
+# Setting up working directory
+WORKDIR /go/src/github.com/mmorejon/cinema/movies
 
-CMD [ "fresh" ]
+# Build the movies command inside the container.
+RUN go install github.com/mmorejon/cinema/movies
+
+# Run the movies microservice when the container starts.
+ENTRYPOINT /go/bin/movies
+
+# Service listens on port 8080.
+EXPOSE 8080

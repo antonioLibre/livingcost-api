@@ -1,17 +1,16 @@
 version: '3.3'
 services:
-  api:
-    container_name: 'api'
-    build: './api'
+  livingcost-ms:
+    container_name: 'livingcost-ms'
+    build: .
     ports:
       - '3000:3000'
-    volumes:
-      - './api:/go/src/app'
-    depends_on:
-      - 'mongo'
 
-  mongo:
+    depends_on:
+      - 'livingcost-db'
+
+  livingcost-db:
     image: 'mongo:latest'
-    container_name: 'mongo'
+    container_name: 'livingcost-db'
     ports:
       - '27100:27017'

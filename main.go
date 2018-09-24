@@ -5,10 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	. "livingcost-api/dao"
-	. "livingcost-api/models"
-
 	"github.com/BurntSushi/toml"
+	. "github.com/antonioLibre/livingcost-api/dao"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
 )
