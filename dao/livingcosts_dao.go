@@ -1,9 +1,10 @@
 package dao
 
 import (
-	"log"
 	. "livingcost-api/models"
-	mgo "gopkg.in/mgo.v2"
+	"log"
+
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 

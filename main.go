@@ -4,12 +4,27 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"gopkg.in/mgo.v2/bson"
-	"github.com/gorilla/mux"
-	. "livingcost-api/config"
+
 	. "livingcost-api/dao"
 	. "livingcost-api/models"
+
+	"github.com/BurntSushi/toml"
+	"github.com/gorilla/mux"
+	"gopkg.in/mgo.v2/bson"
 )
+
+// Represents database server and credentials
+type Config struct {
+	Server   string
+	Database string
+}
+
+// Read and parse the configuration file
+func (c *Config) Read() {
+	if _, err := toml.DecodeFile("config.toml", &c); err != nil {
+		log.Fatal(err)
+	}
+}
 
 var config = Config{}
 var dao = LivingcostsDAO{}
@@ -57,7 +72,8 @@ func UpdateLivingcostEndPoint(w http.ResponseWriter, r *http.Request) {
 	_, err := dao.FindById(params["id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid Livingcost ID")
-		return	}
+		return
+	}
 
 	// barrio := params["barrio"]
 	// localidad := params["localidad"]
@@ -66,7 +82,6 @@ func UpdateLivingcostEndPoint(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var livingcost2 Livingcost
 	livingcost2.ID = bson.ObjectIdHex(params["id"])
-
 
 	if err := json.NewDecoder(r.Body).Decode(&livingcost2); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -92,11 +107,8 @@ func DeleteLivingcostEndPoint(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusOK,  map[string]string{"result": "success"} )
+	respondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
 }
-
-
-
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
 	respondWithJson(w, code, map[string]string{"error": msg})
@@ -112,7 +124,6 @@ func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 // Parse the configuration file 'config.toml', and establish a connection to DB
 func init() {
 	config.Read()
-
 	dao.Server = config.Server
 	dao.Database = config.Database
 	dao.Connect()
